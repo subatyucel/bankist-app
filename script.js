@@ -74,32 +74,29 @@ function displayMovements(movements) {
     containerMovements.insertAdjacentHTML('afterbegin', html);
   });
 }
-displayMovements(account1.movements);
 
 function calcDisplayBalance(movements) {
   const balance = movements.reduce((acc, cur) => acc + cur, 0);
   labelBalance.textContent = `${balance}€`;
 }
-calcDisplayBalance(account1.movements);
 
-function calcDisplaySummary(movements) {
-  const incomes = movements
+function calcDisplaySummary(acc) {
+  const incomes = acc.movements
     .filter((mov) => mov > 0)
     .reduce((acc, mov) => acc + mov, 0);
   labelSumIn.textContent = `${incomes}€`;
 
-  const out = movements
+  const out = acc.movements
     .filter((mov) => mov < 0)
     .reduce((acc, mov) => acc + mov);
   labelSumOut.textContent = `${Math.abs(out)}€`;
 
-  const interest = movements
+  const interest = acc.movements
     .filter((mov) => mov > 0)
-    .map((deposit) => (deposit * 1.2) / 100)
+    .map((deposit) => (deposit * acc.interestRate) / 100)
     .reduce((acc, int) => (int >= 1 ? acc + int : acc));
   labelSumInterest.textContent = interest;
 }
-calcDisplaySummary(account1.movements);
 
 function createUsernames(accs) {
   accs.forEach((acc) => {
@@ -111,3 +108,37 @@ function createUsernames(accs) {
   });
 }
 createUsernames(accounts);
+
+//Event handlers
+let currentAcc;
+
+btnLogin.addEventListener('click', function (e) {
+  e.preventDefault();
+
+  currentAcc = accounts.find(
+    (acc) => acc.username === inputLoginUsername.value
+  );
+
+  if (currentAcc?.pin === Number(inputLoginPin.value)) {
+    //Clear inputs
+    inputLoginUsername.value = '';
+    inputLoginPin.value = '';
+    inputLoginPin.blur();
+    inputLoginUsername.blur();
+
+    //Display Ui and message
+    labelWelcome.textContent = `Welcome back, ${
+      currentAcc.owner.split(' ')[0]
+    }`;
+    containerApp.style.opacity = '100';
+
+    //display movements
+    displayMovements(currentAcc.movements);
+
+    //display balance
+    calcDisplayBalance(currentAcc.movements);
+
+    //display summay
+    calcDisplaySummary(currentAcc);
+  }
+});
