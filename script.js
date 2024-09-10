@@ -174,3 +174,23 @@ btnTransfer.addEventListener('click', function (e) {
     updateUI(currentAcc);
   }
 });
+
+btnClose.addEventListener('click', function (e) {
+  e.preventDefault();
+
+  if (
+    inputCloseUsername.value === currentAcc.username &&
+    Number(inputClosePin.value) === currentAcc.pin
+  ) {
+    const i = accounts.findIndex((acc) => acc.username === currentAcc.username);
+
+    accounts.splice(i, 1);
+
+    containerApp.style.opacity = 0;
+  } else {
+    inputCloseUsername.value = '';
+    inputClosePin.value = '';
+    inputClosePin.blur();
+    inputCloseUsername.blur();
+  }
+});
