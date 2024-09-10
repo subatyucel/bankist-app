@@ -175,6 +175,22 @@ btnTransfer.addEventListener('click', function (e) {
   }
 });
 
+btnLoan.addEventListener('click', function (e) {
+  e.preventDefault();
+
+  const amount = Number(inputLoanAmount.value);
+
+  if (amount > 0 && currentAcc.movements.some((mov) => mov >= amount * 0.1)) {
+    //Add movement
+    currentAcc.movements.push(amount);
+
+    //update ui
+    updateUI(currentAcc);
+    inputLoanAmount.value = '';
+    inputLoanAmount.blur();
+  }
+});
+
 btnClose.addEventListener('click', function (e) {
   e.preventDefault();
 
