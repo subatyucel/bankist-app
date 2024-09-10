@@ -57,6 +57,7 @@ const inputLoanAmount = document.querySelector('.form__input--loan-amount');
 const inputCloseUsername = document.querySelector('.form__input--user');
 const inputClosePin = document.querySelector('.form__input--pin');
 
+//Functions
 function displayMovements(movements) {
   containerMovements.innerHTML = '';
   movements.forEach(function (mov, i) {
@@ -75,9 +76,10 @@ function displayMovements(movements) {
   });
 }
 
-function calcDisplayBalance(movements) {
-  const balance = movements.reduce((acc, cur) => acc + cur, 0);
-  labelBalance.textContent = `${balance}€`;
+function calcDisplayBalance(acc) {
+  acc.balance = acc.movements.reduce((acc, cur) => acc + cur, 0);
+
+  labelBalance.textContent = `${acc.balance}€`;
 }
 
 function calcDisplaySummary(acc) {
@@ -109,6 +111,17 @@ function createUsernames(accs) {
 }
 createUsernames(accounts);
 
+function updateUI(acc) {
+  //display movements
+  displayMovements(acc.movements);
+
+  //display balance
+  calcDisplayBalance(acc);
+
+  //display summay
+  calcDisplaySummary(acc);
+}
+
 //Event handlers
 let currentAcc;
 
@@ -132,13 +145,32 @@ btnLogin.addEventListener('click', function (e) {
     }`;
     containerApp.style.opacity = '100';
 
-    //display movements
-    displayMovements(currentAcc.movements);
+    //Update UI
+    updateUI(currentAcc);
+  }
+});
 
-    //display balance
-    calcDisplayBalance(currentAcc.movements);
+btnTransfer.addEventListener('click', function (e) {
+  e.preventDefault();
+  const amount = Number(inputTransferAmount.value);
+  const recieverAcc = accounts.find(
+    (acc) => acc.username === inputTransferTo.value
+  );
 
-    //display summay
-    calcDisplaySummary(currentAcc);
+  inputTransferAmount.value = '';
+  inputTransferTo.value = '';
+  inputTransferTo.blur();
+  inputTransferAmount.blur();
+
+  if (
+    amount > 0 &&
+    recieverAcc &&
+    currentAcc.balance >= amount &&
+    recieverAcc.username !== currentAcc.username
+  ) {
+    //Transfer and update ui
+    currentAcc.movements.push(-amount);
+    recieverAcc.movements.push(amount);
+    updateUI(currentAcc);
   }
 });
