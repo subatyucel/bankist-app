@@ -166,15 +166,39 @@ function updateUI(acc) {
   calcDisplaySummary(acc);
 }
 
+function startLogOutTimer() {
+  function tick() {
+    const min = String(Math.trunc(time / 60)).padStart(2, 0);
+    const sec = String(time % 60).padStart(2, 0);
+
+    //in each call, prinnt remaining time to ui
+    labelTimer.textContent = `${min}:${sec}`;
+
+    //when 0 seconds stop timer and log out user
+    if (time === 0) {
+      clearInterval(timer);
+
+      labelWelcome.textContent = `Log in to get started
+      `;
+      containerApp.style.opacity = '0';
+    }
+
+    //decrease 1 sec
+    time--;
+  }
+
+  //set time to 5 mins
+  let time = 120;
+
+  //call the tiimer everysecond
+  tick();
+  const timer = setInterval(tick, 1000);
+
+  return timer;
+}
+
 //Event handlers
-let currentAcc;
-
-//Fake always logged in
-currentAcc = account1;
-updateUI(currentAcc);
-containerApp.style.opacity = '100';
-
-// day/month/year
+let currentAcc, timer;
 
 btnLogin.addEventListener('click', function (e) {
   e.preventDefault();
@@ -211,6 +235,8 @@ btnLogin.addEventListener('click', function (e) {
       options
     ).format(now);
 
+    if (timer) clearInterval(timer);
+    timer = startLogOutTimer();
     //Update UI
     updateUI(currentAcc);
   }
@@ -243,6 +269,10 @@ btnTransfer.addEventListener('click', function (e) {
     recieverAcc.movementsDates.push(new Date().toISOString());
     //update ui
     updateUI(currentAcc);
+
+    //reset timer
+    clearInterval(timer);
+    timer = startLogOutTimer();
   }
 });
 
@@ -266,6 +296,10 @@ btnLoan.addEventListener('click', function (e) {
     inputLoanAmount.value = '';
     inputLoanAmount.blur();
   }
+
+  //reset timer
+  clearInterval(timer);
+  timer = startLogOutTimer();
 });
 
 btnClose.addEventListener('click', function (e) {
